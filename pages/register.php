@@ -20,7 +20,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                               VALUES (?, ?, ?, ?, ?)");
         $stmt->execute([$first_name, $last_name, $middle_name, $email, $password]);
 
-        $_SESSION['user'] = ['first_name' => $first_name, 'last_name' => $last_name, 'email' => $email];
+        // Сохранение данных о пользователе в сессии
+        $_SESSION['user'] = [
+            'id' => $db->lastInsertId(), // ID нового пользователя
+            'first_name' => $first_name,
+            'last_name' => $last_name,
+            'middle_name' => $middle_name,
+            'email' => $email
+        ];
+
         header('Location: dashboard.php');
         exit;
     }
@@ -33,31 +41,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Регистрация</title>
+    <link rel="stylesheet" href="/style.css"> <!-- Подключаем общий стиль -->
 </head>
 <body>
-    <h2>Регистрация</h2>
-    <form method="POST">
-        <label for="last_name">Фамилия:</label>
-        <input type="text" name="last_name" id="last_name" required>
-        <br>
 
-        <label for="first_name">Имя:</label>
-        <input type="text" name="first_name" id="first_name" required>
-        <br>
+<div class="container">
+    <div class="form-container">
+        <h2>Регистрация</h2>
+        <form method="POST">
+            <input type="text" name="last_name" class="form-input" placeholder="Фамилия" required>
+            <input type="text" name="first_name" class="form-input" placeholder="Имя" required>
+            <input type="text" name="middle_name" class="form-input" placeholder="Отчество" required>
+            <input type="email" name="email" class="form-input" placeholder="Электронная почта" required>
+            <input type="password" name="password" class="form-input" placeholder="Пароль" required>
+            <button type="submit" class="form-submit">Зарегистрироваться</button>
+        </form>
 
-        <label for="middle_name">Отчество:</label>
-        <input type="text" name="middle_name" id="middle_name" required>
-        <br>
+        <div class="form-link">
+            Уже есть аккаунт? <a href="login.php">Войти</a>
+        </div>
+    </div>
+</div>
 
-        <label for="email">Email:</label>
-        <input type="email" name="email" id="email" required>
-        <br>
-
-        <label for="password">Пароль:</label>
-        <input type="password" name="password" id="password" required>
-        <br>
-
-        <button type="submit">Зарегистрироваться</button>
-    </form>
 </body>
 </html>

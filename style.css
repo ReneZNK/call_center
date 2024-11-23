@@ -1,0 +1,238 @@
+/* Сброс стилей */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: #f0f4f8; /* Светло-серый фон */
+    color: #333;
+    line-height: 1.6;
+    padding: 0 20px;
+    background: linear-gradient(180deg, #f0f4f8, #dfe6f1); /* Легкий градиент */
+}
+
+/* Главный контейнер */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Заголовки */
+h1, h2, h3 {
+    color: #2C3E50; /* Темно-синий цвет */
+    margin-bottom: 20px;
+}
+
+/* Формы */
+form {
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+form input,
+form select,
+form button {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+form input:focus,
+form select:focus,
+form button:focus {
+    border-color: #3498db; /* Синий при фокусе */
+    outline: none;
+}
+
+form button {
+    background-color: #3498db; /* Синий */
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+form button:hover {
+    background-color: #2980b9; /* Темно-синий при наведении */
+}
+
+/* Стили для таблиц */
+table {
+    width: 100%;
+    margin: 20px 0;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+table th {
+    background-color: #ecf0f1; /* Светло-серый */
+    color: #2C3E50; /* Темно-синий */
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tr:hover {
+    background-color: #ecf0f1;
+}
+
+/* Стили для кнопок */
+button {
+    padding: 10px 15px;
+    background-color: #3498db; /* Синий */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #2980b9; /* Темно-синий при наведении */
+}
+
+/* Карточки и элементы на панели */
+.card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    font-size: 20px;
+    color: #2C3E50;
+    margin-bottom: 15px;
+}
+
+/* Навигация */
+.navbar {
+    background-color: #3498db; /* Синий */
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 5px;
+    margin-bottom: 30px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+.navbar a:hover {
+    text-decoration: underline;
+}
+
+/* Футер */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #3498db; /* Синий */
+    color: white;
+    border-radius: 5px;
+    margin-top: 30px;
+}
+
+footer a {
+    color: white;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* Адаптивность для мобильных устройств */
+@media screen and (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    form input,
+    form select,
+    form button {
+        font-size: 14px;
+    }
+
+    table th, table td {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .card-header {
+        font-size: 18px;
+    }
+}
+
+/* Стили для формы регистрации и входа */
+.form-container {
+    background: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.form-container h2 {
+    color: #3498db; /* Синий */
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-container input,
+.form-container button {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.form-container button {
+    background-color: #3498db; /* Синий */
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-container button:hover {
+    background-color: #2980b9; /* Темно-синий при наведении */
+}
+
+/* Стили для ссылок между страницами */
+.form-container .form-link {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.form-container .form-link a {
+    color: #3498db; /* Синий */
+    text-decoration: none;
+}
+
+.form-container .form-link a:hover {
+    text-decoration: underline;
+}

@@ -41,161 +41,134 @@ $stmt_5min->execute();
 <head>
     <meta charset="UTF-8">
     <title>Перерывы</title>
+    <link rel="stylesheet" href="/style.css"> <!-- Подключаем общий стиль -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-        h3 {
-            margin-top: 30px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-        button {
-            padding: 5px 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .end-break-container {
-            margin-bottom: 30px;
-        }
-    </style>
 </head>
 <body>
 
-<!-- Приветствие с ФИО -->
-<h2>Добро пожаловать, <?php echo $user['last_name'] . ' ' . $user['first_name'] . ' ' . $user['middle_name']; ?>!</h2>
+<div class="container">
+    <!-- Приветствие с ФИО -->
+    <div class="navbar">
+        <span>Добро пожаловать, <?php echo $user['last_name'] . ' ' . $user['first_name'] . ' ' . $user['middle_name']; ?>!</span>
+        <a href="logout.php">Выйти</a>
+    </div>
 
-<!-- Кнопка выхода из аккаунта -->
-<a href="logout.php"><button>Выйти из аккаунта</button></a>
+    <h1>Перерывы сотрудников</h1>
 
-<!-- Форма для выхода на перерыв -->
-<h3>Выход на перерыв</h3>
-<form action="start_break.php" method="POST">
-    <label for="break_type">Выберите тип перерыва:</label>
-    <select name="break_type" id="break_type" required>
-        <option value="10 минут">10 минут</option>
-        <option value="15 минут">15 минут</option>
-        <option value="5 минут">5 минут</option>
-    </select>
-    <button type="submit">Выйти на перерыв</button>
-</form>
+    <!-- Форма для выхода на перерыв -->
+    <h3>Выход на перерыв</h3>
+    <form action="start_break.php" method="POST">
+        <label for="break_type">Выберите тип перерыва:</label>
+        <select name="break_type" id="break_type" required>
+            <option value="10 минут">10 минут</option>
+            <option value="15 минут">15 минут</option>
+            <option value="5 минут">5 минут</option>
+        </select>
+        <button type="submit" class="form-submit">Выйти на перерыв</button>
+    </form>
 
-
-<!-- Таблица для 10 минут -->
-<h3>10 минут</h3>
-<table>
-    <thead>
-        <tr>
-            <th>Ф.И.О.</th>
-            <th>Время выхода</th>
-            <th>Таймер</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php while ($row = $stmt_10min->fetch()): ?>
-            <tr id="break-<?php echo $row['id']; ?>">
-                <td><?php echo $row['last_name'] . ' ' . $row['first_name'] . ' ' . $row['middle_name']; ?></td>
-                <td><?php echo $row['start_time']; ?></td>
-                <td id="duration-<?php echo $row['id']; ?>">00:00:00</td>
+    <!-- Таблица для 10 минут -->
+    <h3>10 минут</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Ф.И.О.</th>
+                <th>Время выхода</th>
+                <th>Таймер</th>
             </tr>
+        </thead>
+        <tbody>
+            <?php while ($row = $stmt_10min->fetch()): ?>
+                <tr id="break-<?php echo $row['id']; ?>">
+                    <td><?php echo $row['last_name'] . ' ' . $row['first_name'] . ' ' . $row['middle_name']; ?></td>
+                    <td><?php echo $row['start_time']; ?></td>
+                    <td id="duration-<?php echo $row['id']; ?>">00:00:00</td>
+                </tr>
+            <?php endwhile; ?>
+        </tbody>
+    </table>
+
+    <!-- Контейнер для кнопок завершения перерыва для 10 минут -->
+    <div class="end-break-container">
+        <?php
+        $stmt_10min->execute(); // Нужно снова выполнить запрос, чтобы использовать его в этом месте
+        while ($row = $stmt_10min->fetch()):
+        ?>
+            <?php if ($row['user_id'] == $user_id): ?>
+                <button class="end-break" data-id="<?php echo $row['id']; ?>">Завершить</button>
+            <?php endif; ?>
         <?php endwhile; ?>
-    </tbody>
-</table>
+    </div>
 
-<!-- Контейнер для кнопок завершения перерыва для 10 минут -->
-<div class="end-break-container">
-    <?php
-    // Переносим вывод кнопок завершения перерыва в отдельный блок
-    $stmt_10min->execute(); // Нужно снова выполнить запрос, чтобы использовать его в этом месте
-    while ($row = $stmt_10min->fetch()):
-    ?>
-        <?php if ($row['user_id'] == $user_id): ?>
-                        <button class="end-break" data-id="<?php echo $row['id']; ?>">Завершить</button>
-                    <?php endif; ?>
-    <?php endwhile; ?>
-</div>
-
-<!-- Таблица для 15 минут -->
-<h3>15 минут</h3>
-<table>
-    <thead>
-        <tr>
-            <th>Ф.И.О.</th>
-            <th>Время выхода</th>
-            <th>Таймер</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php while ($row = $stmt_15min->fetch()): ?>
-            <tr id="break-<?php echo $row['id']; ?>">
-                <td><?php echo $row['last_name'] . ' ' . $row['first_name'] . ' ' . $row['middle_name']; ?></td>
-                <td><?php echo $row['start_time']; ?></td>
-                <td id="duration-<?php echo $row['id']; ?>">00:00:00</td>
+    <!-- Таблица для 15 минут -->
+    <h3>15 минут</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Ф.И.О.</th>
+                <th>Время выхода</th>
+                <th>Таймер</th>
             </tr>
+        </thead>
+        <tbody>
+            <?php while ($row = $stmt_15min->fetch()): ?>
+                <tr id="break-<?php echo $row['id']; ?>">
+                    <td><?php echo $row['last_name'] . ' ' . $row['first_name'] . ' ' . $row['middle_name']; ?></td>
+                    <td><?php echo $row['start_time']; ?></td>
+                    <td id="duration-<?php echo $row['id']; ?>">00:00:00</td>
+                </tr>
+            <?php endwhile; ?>
+        </tbody>
+    </table>
+
+    <!-- Контейнер для кнопок завершения перерыва для 15 минут -->
+    <div class="end-break-container">
+        <?php
+        $stmt_15min->execute(); // Нужно снова выполнить запрос, чтобы использовать его в этом месте
+        while ($row = $stmt_15min->fetch()):
+        ?>
+            <?php if ($row['user_id'] == $user_id): ?>
+                <button class="end-break" data-id="<?php echo $row['id']; ?>">Завершить</button>
+            <?php endif; ?>
         <?php endwhile; ?>
-    </tbody>
-</table>
+    </div>
 
-<!-- Контейнер для кнопок завершения перерыва для 15 минут -->
-<div class="end-break-container">
-    <?php
-    // Переносим вывод кнопок завершения перерыва в отдельный блок
-    $stmt_15min->execute(); // Нужно снова выполнить запрос, чтобы использовать его в этом месте
-    while ($row = $stmt_15min->fetch()):
-    ?>
-        <?php if ($row['user_id'] == $user_id): ?>
-                        <button class="end-break" data-id="<?php echo $row['id']; ?>">Завершить</button>
-                    <?php endif; ?>
-    <?php endwhile; ?>
-</div>
-
-<!-- Таблица для 5 минут -->
-<h3>5 минут</h3>
-<table>
-    <thead>
-        <tr>
-            <th>Ф.И.О.</th>
-            <th>Время выхода</th>
-            <th>Таймер</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php while ($row = $stmt_5min->fetch()): ?>
-            <tr id="break-<?php echo $row['id']; ?>">
-                <td><?php echo $row['last_name'] . ' ' . $row['first_name'] . ' ' . $row['middle_name']; ?></td>
-                <td><?php echo $row['start_time']; ?></td>
-                <td id="duration-<?php echo $row['id']; ?>">00:00:00</td>
+    <!-- Таблица для 5 минут -->
+    <h3>5 минут</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Ф.И.О.</th>
+                <th>Время выхода</th>
+                <th>Таймер</th>
             </tr>
-        <?php endwhile; ?>
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            <?php while ($row = $stmt_5min->fetch()): ?>
+                <tr id="break-<?php echo $row['id']; ?>">
+                    <td><?php echo $row['last_name'] . ' ' . $row['first_name'] . ' ' . $row['middle_name']; ?></td>
+                    <td><?php echo $row['start_time']; ?></td>
+                    <td id="duration-<?php echo $row['id']; ?>">00:00:00</td>
+                </tr>
+            <?php endwhile; ?>
+        </tbody>
+    </table>
 
-<!-- Контейнер для кнопок завершения перерыва для 5 минут -->
-<div class="end-break-container">
-    <?php
-    // Переносим вывод кнопок завершения перерыва в отдельный блок
-    $stmt_5min->execute(); // Нужно снова выполнить запрос, чтобы использовать его в этом месте
-    while ($row = $stmt_5min->fetch()):
-    ?>
-        <?php if ($row['user_id'] == $user_id): ?>
-                        <button class="end-break" data-id="<?php echo $row['id']; ?>">Завершить</button>
-                    <?php endif; ?>
-    <?php endwhile; ?>
+    <!-- Контейнер для кнопок завершения перерыва для 5 минут -->
+    <div class="end-break-container">
+        <?php
+        $stmt_5min->execute(); // Нужно снова выполнить запрос, чтобы использовать его в этом месте
+        while ($row = $stmt_5min->fetch()):
+        ?>
+            <?php if ($row['user_id'] == $user_id): ?>
+                <button class="end-break" data-id="<?php echo $row['id']; ?>">Завершить</button>
+            <?php endif; ?>
+        <?php endwhile; ?>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Call Center. Все права защищены.</p>
+    </footer>
 </div>
 
 <script>
@@ -212,10 +185,8 @@ $(document).ready(function() {
             success: function(response) {
                 var data = JSON.parse(response);
                 if (data.success) {
-                    // Если перерыв успешно начат, обновляем таблицу
-                    location.reload(); // Перезагружаем страницу, чтобы обновить данные
+                    location.reload(); // Перезагружаем страницу для обновления данных
                 } else {
-                    // Если ошибка (например, активный перерыв), показываем сообщение
                     alert(data.message);
                 }
             },
@@ -228,7 +199,7 @@ $(document).ready(function() {
     // Обновление таймера
     setInterval(function() {
         $('tr[id^="break-"]').each(function() {
-            var break_id = $(this).attr('id').split('-')[1]; // Извлекаем ID перерыва
+            var break_id = $(this).attr('id').split('-')[1];
             var duration_cell = $('#duration-' + break_id);
             $.ajax({
                 url: 'update_break_time.php',
@@ -237,7 +208,7 @@ $(document).ready(function() {
                 success: function(response) {
                     var data = JSON.parse(response);
                     if (data.duration) {
-                        duration_cell.text(data.duration); // Обновляем таймер в таблице
+                        duration_cell.text(data.duration);
                     }
                 }
             });
@@ -254,10 +225,7 @@ $(document).ready(function() {
             success: function(response) {
                 var data = JSON.parse(response);
                 if (data.success) {
-                    // Удаляем строку с завершённым перерывом из таблицы
                     $('#break-' + break_id).remove();
-                    
-                    // Удаляем кнопку завершения перерыва
                     $('.end-break[data-id="' + break_id + '"]').remove();
                 } else {
                     alert(data.message);

@@ -26,19 +26,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Вход</title>
+    <link rel="stylesheet" href="/style.css"> <!-- Подключаем общий стиль -->
 </head>
 <body>
-    <h2>Вход в систему</h2>
-    <form method="POST">
-        <label for="email">Email:</label>
-        <input type="email" name="email" id="email" required>
-        <br>
 
-        <label for="password">Пароль:</label>
-        <input type="password" name="password" id="password" required>
-        <br>
+<div class="container">
+    <div class="form-container">
+        <h2>Вход в систему</h2>
+        <form method="POST">
+            <input type="email" name="email" class="form-input" placeholder="Электронная почта" required>
+            <input type="password" name="password" class="form-input" placeholder="Пароль" required>
+            <button type="submit" class="form-submit">Войти</button>
+        </form>
 
-        <button type="submit">Войти</button>
-    </form>
+        <div class="form-link">
+            Нет аккаунта? <a href="registration.php">Зарегистрироваться</a>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
