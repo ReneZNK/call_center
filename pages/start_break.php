@@ -21,15 +21,39 @@ if ($active_break) {
     exit;
 }
 
-// Если нет активного перерыва, продолжаем
+// Получаем тип смены пользователя
+$stmt_shift = $db->prepare("SELECT shift_type FROM users WHERE id = ?");
+$stmt_shift->execute([$user_id]);
+$user_shift = $stmt_shift->fetch();
+
+// Определяем доступное время на перерывы в зависимости от типа смены
+$break_time_allowed = ($user_shift['shift_type'] == '8 часов') ? 30 : 45; // для 8 часов - 30 минут, для 12 часов - 45 минут
+
+// Получаем общее время использованных перерывов
+$stmt_breaks = $db->prepare("SELECT SUM(TIMESTAMPDIFF(MINUTE, start_time, end_time)) AS total_break_time 
+                             FROM breaks 
+                             WHERE user_id = ? AND end_time IS NOT NULL");
+$stmt_breaks->execute([$user_id]);
+$breaks_data = $stmt_breaks->fetch();
+$total_break_time = $breaks_data['total_break_time'] ?: 0;
+
+// Проверяем, есть ли достаточно времени для нового перерыва
+$remaining_break_time = $break_time_allowed - $total_break_time;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['break_type'])) {
     $break_type = $_POST['break_type'];
-    $start_time = date('Y-m-d H:i:s');
-    
-    // Вставка нового перерыва в базу данных
-    $stmt = $db->prepare("INSERT INTO breaks (user_id, start_time, break_type) VALUES (?, ?, ?)");
-    $stmt->execute([$user_id, $start_time, $break_type]);
+    $break_duration = ($break_type === '10 минут') ? 10 : ($break_type === '15 минут' ? 15 : 5);
 
-    echo json_encode(['success' => true]);
+    if ($remaining_break_time >= $break_duration) {
+        $start_time = date('Y-m-d H:i:s');
+        
+        // Вставка нового перерыва в базу данных
+        $stmt = $db->prepare("INSERT INTO breaks (user_id, start_time, break_type) VALUES (?, ?, ?)");
+        $stmt->execute([$user_id, $start_time, $break_type]);
+
+        // Возвращаем успешный ответ
+        echo json_encode(['success' => true, 'start_time' => $start_time, 'break_type' => $break_type]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'У вас недостаточно времени для этого перерыва!']);
+    }
 }
 ?>

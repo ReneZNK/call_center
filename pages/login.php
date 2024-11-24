@@ -2,6 +2,12 @@
 session_start();
 require_once '../includes/db.php';
 
+// Если пользователь уже авторизован, перенаправляем на панель управления
+if (isset($_SESSION['user'])) {
+    header('Location: dashboard.php');
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
