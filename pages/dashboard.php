@@ -44,10 +44,20 @@ function getBreaksByType($db, $break_type) {
     return $stmt->fetchAll();
 }
 
+// Получаем информацию о доступных слотах для каждого типа перерыва
+$stmt_slots = $db->prepare("SELECT * FROM break_slots");
+$stmt_slots->execute();
+$slots = $stmt_slots->fetchAll();
+
 // Получаем перерывы по типам
 $breaks_10min = getBreaksByType($db, '10 минут');
 $breaks_15min = getBreaksByType($db, '15 минут');
 $breaks_5min = getBreaksByType($db, '5 минут');
+
+// Если смена завершена, сбрасываем оставшееся время
+if (!$active_shift) {
+    $remaining_break_time = 0; // Сбросить время перерывов, если смена завершена
+}
 ?>
 
 <!DOCTYPE html>
@@ -87,6 +97,7 @@ $breaks_5min = getBreaksByType($db, '5 минут');
                         document.getElementById('start-shift').disabled = true;
                         document.getElementById('end-shift').disabled = false;
                         alert('Смена начата!');
+                        location.reload();
                     } else {
                         alert(data.message || 'Ошибка сервера!');
                     }
@@ -105,6 +116,7 @@ $breaks_5min = getBreaksByType($db, '5 минут');
                         document.getElementById('start-shift').disabled = false;
                         document.getElementById('end-shift').disabled = true;
                         alert('Смена завершена!');
+                        location.reload();
                     } else {
                         alert(data.message || 'Ошибка сервера!');
                     }
@@ -131,14 +143,23 @@ $breaks_5min = getBreaksByType($db, '5 минут');
         <button type="submit" class="form-submit">Выйти на перерыв</button>
     </form>
 
-    <audio id="alarm-sound" src="/assets/sounds/alarm.mp3" preload="auto"></audio>
+    
 
     <!-- Таблицы перерывов для различных типов -->
     <?php 
     $break_types = ['15 минут' => $breaks_15min, '10 минут' => $breaks_10min, '5 минут' => $breaks_5min];
     foreach ($break_types as $break_type => $breaks): 
-    ?>
-        <h3><?= $break_type ?></h3>
+
+        // Получаем количество доступных слотов для этого типа перерыва
+        $available_slots = 0;
+        foreach ($slots as $slot) {
+            if ($slot['break_type'] == $break_type) {
+                $available_slots = $slot['available_slots'];
+                break;
+            }
+        }
+?>
+        <h3><?= $break_type ?> (<?= $available_slots ?> слотов)</h3>
         <table>
             <thead>
                 <tr>

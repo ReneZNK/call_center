@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password'])) {
-        $_SESSION['user'] = ['id' => $user['id'], 'first_name' => $user['first_name'], 'last_name' => $user['last_name']];
+        $_SESSION['user'] = ['id' => $user['id'], 'first_name' => $user['first_name'], 'last_name' => $user['last_name'],'role' => $user['role']];
         header('Location: dashboard.php');
         exit;
     } else {
@@ -45,9 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit" class="form-submit">Войти</button>
         </form>
 
-        <div class="form-link">
-            Нет аккаунта? <a href="registration.php">Зарегистрироваться</a>
-        </div>
+        
     </div>
 </div>
 

@@ -1,31 +1,37 @@
 <?php
 session_start();
+require_once '../includes/db.php';
 
-// Проверяем, что пользователь авторизован
 if (!isset($_SESSION['user'])) {
     header('Location: login.php');
     exit;
 }
 
-require_once '../includes/db.php';
-
 $user_id = $_SESSION['user']['id'];
-$break_id = $_POST['break_id'];
 
-// Проверяем, что этот перерыв принадлежит текущему пользователю
-$stmt = $db->prepare("SELECT * FROM breaks WHERE id = ? AND user_id = ?");
-$stmt->execute([$break_id, $user_id]);
-$break = $stmt->fetch();
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['break_id'])) {
+    $break_id = $_POST['break_id'];
 
-if ($break) {
-    // Завершаем перерыв, обновляем время окончания
-    $end_time = date('Y-m-d H:i:s');
-    $stmt_end = $db->prepare("UPDATE breaks SET end_time = ? WHERE id = ?");
-    $stmt_end->execute([$end_time, $break_id]);
+    // Завершаем перерыв
+    $stmt = $db->prepare("UPDATE breaks SET end_time = ? WHERE id = ? AND user_id = ?");
+    $stmt->execute([date('Y-m-d H:i:s'), $break_id, $user_id]);
 
-    echo json_encode(['success' => true]);
-} else {
-    // Если перерыв не найден или не принадлежит пользователю
-    echo json_encode(['success' => false, 'message' => 'Вы не можете завершить этот перерыв.']);
+    // Получаем информацию о типе перерыва
+    $stmt_break = $db->prepare("SELECT break_type FROM breaks WHERE id = ?");
+    $stmt_break->execute([$break_id]);
+    $break_data = $stmt_break->fetch();
+
+    if ($break_data) {
+        $break_type = $break_data['break_type'];
+
+        // Обновляем количество доступных слотов для выбранного типа перерыва
+        $stmt_slots = $db->prepare("UPDATE break_slots SET available_slots = available_slots + 1 WHERE break_type = ?");
+        $stmt_slots->execute([$break_type]);
+
+        // Возвращаем успешный ответ
+        echo json_encode(['success' => true, 'message' => 'Перерыв завершен, слот возвращен!']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Не удалось найти перерыв.']);
+    }
 }
 ?>

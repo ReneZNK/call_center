@@ -34,7 +34,11 @@ if ($active_shift) {
         $stmt_end_shift = $db->prepare("UPDATE shifts SET end_time = ? WHERE id = ?");
         $stmt_end_shift->execute([$end_time, $active_shift['id']]);
         
-        echo json_encode(['success' => true, 'message' => 'Смена завершена автоматически.']);
+        // Удаляем все незавершенные перерывы для этого пользователя
+        $stmt_delete_breaks = $db->prepare("DELETE FROM breaks WHERE user_id = ?");
+        $stmt_delete_breaks->execute([$user_id]);
+
+        echo json_encode(['success' => true, 'message' => 'Смена завершена автоматически, все незавершённые перерывы удалены.']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Смена ещё не закончена.']);
     }

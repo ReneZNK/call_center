@@ -39,21 +39,35 @@ $total_break_time = $breaks_data['total_break_time'] ?: 0;
 
 // Проверяем, есть ли достаточно времени для нового перерыва
 $remaining_break_time = $break_time_allowed - $total_break_time;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['break_type'])) {
     $break_type = $_POST['break_type'];
     $break_duration = ($break_type === '10 минут') ? 10 : ($break_type === '15 минут' ? 15 : 5);
 
-    if ($remaining_break_time >= $break_duration) {
-        $start_time = date('Y-m-d H:i:s');
-        
-        // Вставка нового перерыва в базу данных
-        $stmt = $db->prepare("INSERT INTO breaks (user_id, start_time, break_type) VALUES (?, ?, ?)");
-        $stmt->execute([$user_id, $start_time, $break_type]);
+    // Проверка доступных слотов
+    $stmt_slots = $db->prepare("SELECT available_slots FROM break_slots WHERE break_type = ?");
+    $stmt_slots->execute([$break_type]);
+    $slots_data = $stmt_slots->fetch();
 
-        // Возвращаем успешный ответ
-        echo json_encode(['success' => true, 'start_time' => $start_time, 'break_type' => $break_type]);
+    if ($slots_data && $slots_data['available_slots'] > 0) {
+        if ($remaining_break_time >= $break_duration) {
+            $start_time = date('Y-m-d H:i:s');
+            
+            // Вставка нового перерыва в базу данных
+            $stmt = $db->prepare("INSERT INTO breaks (user_id, start_time, break_type) VALUES (?, ?, ?)");
+            $stmt->execute([$user_id, $start_time, $break_type]);
+
+            // Уменьшаем количество доступных слотов
+            $stmt_update_slots = $db->prepare("UPDATE break_slots SET available_slots = available_slots - 1 WHERE break_type = ?");
+            $stmt_update_slots->execute([$break_type]);
+
+            // Возвращаем успешный ответ
+            echo json_encode(['success' => true, 'start_time' => $start_time, 'break_type' => $break_type]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'У вас недостаточно времени для этого перерыва!']);
+        }
     } else {
-        echo json_encode(['success' => false, 'message' => 'У вас недостаточно времени для этого перерыва!']);
+        echo json_encode(['success' => false, 'message' => 'Нет доступных слотов для этого перерыва!']);
     }
 }
 ?>
