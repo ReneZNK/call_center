@@ -13,6 +13,7 @@ $stmt = $db->prepare("SELECT * FROM break_slots");
 $stmt->execute();
 $slots = $stmt->fetchAll();
 
+$responseMessage = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['break_type']) && isset($_POST['available_slots'])) {
     $break_type = $_POST['break_type'];
     $available_slots = $_POST['available_slots'];
@@ -22,11 +23,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['break_type']) && isse
         // Обновляем количество доступных слотов
         $stmt_update = $db->prepare("UPDATE break_slots SET available_slots = ? WHERE break_type = ?");
         $stmt_update->execute([$available_slots, $break_type]);
-
-        echo json_encode(['success' => true, 'message' => 'Количество слотов обновлено.']);
+        $responseMessage = 'Количество слотов обновлено.';
     } else {
-        echo json_encode(['success' => false, 'message' => 'Количество слотов не может быть отрицательным.']);
+        $responseMessage = 'Количество слотов не может быть отрицательным.';
     }
+
+    // Перенаправление для предотвращения повторной отправки формы
+    header('Location: ' . $_SERVER['PHP_SELF'] . '?message=' . urlencode($responseMessage));
+    exit;
+}
+
+// Проверка наличия сообщения в параметрах URL
+if (isset($_GET['message'])) {
+    $responseMessage = $_GET['message'];
 }
 ?>
 
@@ -37,14 +46,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['break_type']) && isse
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/style.css">
     <title>Управление слотами перерывов</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const responseMessage = "<?= htmlspecialchars($responseMessage) ?>";
+            if (responseMessage) {
+                alert(responseMessage);
+            }
+        });
+    </script>
 </head>
 <body>
     <h1>Управление слотами перерывов</h1>
     <form method="POST">
         <label for="break_type">Тип перерыва:</label>
         <select name="break_type" id="break_type">
+        <option value="15 минут">15 минут</option>
             <option value="10 минут">10 минут</option>
-            <option value="15 минут">15 минут</option>
             <option value="5 минут">5 минут</option>
         </select><br><br>
 
@@ -62,8 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['break_type']) && isse
         </tr>
         <?php foreach ($slots as $slot): ?>
         <tr>
-            <td><?= $slot['break_type'] ?></td>
-            <td><?= $slot['available_slots'] ?></td>
+            <td><?= htmlspecialchars($slot['break_type']) ?></td>
+            <td><?= htmlspecialchars($slot['available_slots']) ?></td>
         </tr>
         <?php endforeach; ?>
     </table>

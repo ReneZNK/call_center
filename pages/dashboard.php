@@ -20,6 +20,14 @@ $stmt_check_shift = $db->prepare("SELECT * FROM shifts WHERE user_id = ? AND end
 $stmt_check_shift->execute([$user_id]);
 $active_shift = $stmt_check_shift->fetch();
 
+$stmt_active_shifts = $db->prepare("SELECT users.first_name, users.last_name, users.middle_name, users.shift_type, shifts.start_time 
+    FROM shifts 
+    JOIN users ON shifts.user_id = users.id
+    WHERE shifts.end_time IS NULL
+");
+$stmt_active_shifts->execute();
+$active_users = $stmt_active_shifts->fetchAll();
+
 // Определяем доступное время на перерывы в зависимости от типа смены
 $break_time_allowed = ($user['shift_type'] == '8 часов') ? 30 : 45; // для 8 часов - 30 минут, для 12 часов - 45 минут
 
@@ -78,7 +86,7 @@ if (!$active_shift) {
     </div>
 
     <div class="shift-container">
-        <h3>Смена</h3>
+        <h3>Смена, <?=$user['shift_type'];?> </h3>
         <?php if ($active_shift): ?>
             <button id="start-shift" class="btn btn-primary" disabled>Начало смены</button>
             <button id="end-shift" class="btn btn-secondary">Конец смены</button>
@@ -109,23 +117,23 @@ if (!$active_shift) {
         });
 
         document.getElementById('end-shift').addEventListener('click', function () {
-            fetch('end_shift.php', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById('start-shift').disabled = false;
-                        document.getElementById('end-shift').disabled = true;
-                        alert('Смена завершена!');
-                        location.reload();
-                    } else {
-                        alert(data.message || 'Ошибка сервера!');
-                    }
-                })
-                .catch(error => {
-                    console.error('Fetch Error:', error);
-                    alert('Ошибка подключения!');
-                });
+    fetch('end_shift.php', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                document.getElementById('start-shift').disabled = false;
+                document.getElementById('end-shift').disabled = true;
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Fetch Error:', error);
+            alert('Ошибка подключения!');
         });
+});
     </script>
 
     <h1>Перерывы сотрудников</h1>
@@ -136,14 +144,32 @@ if (!$active_shift) {
     <h3>Оставшееся время на перерывы: <?= $remaining_break_time ?> минут</h3>
         <label for="break_type">Выберите тип перерыва:</label>
         <select name="break_type" id="break_type" required>
-            <option value="10 минут">10 минут</option>
             <option value="15 минут">15 минут</option>
+            <option value="10 минут">10 минут</option>
             <option value="5 минут">5 минут</option>
         </select>
         <button type="submit" class="form-submit">Выйти на перерыв</button>
     </form>
 
-    
+    <h1>Сотрудники на смене</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Ф.И.О.</th>
+                <th>Тип смены</th>
+                <th>Время начала</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($active_users as $active_user): ?>
+        <tr>
+            <td><?= $active_user['last_name'] . ' ' . $active_user['first_name'] . ' ' . $active_user['middle_name']; ?></td>
+            <td><?= $active_user['shift_type']; ?></td>
+            <td><?= date('H:i:s', strtotime($active_user['start_time'])); ?></td> <!-- Форматирование времени -->
+        </tr>
+    <?php endforeach; ?>
+        </tbody>
+    </table>
 
     <!-- Таблицы перерывов для различных типов -->
     <?php 
