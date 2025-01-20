@@ -82,7 +82,15 @@ if (!$active_shift) {
     <!-- Приветствие с ФИО -->
     <div class="navbar">
         <span>Добро пожаловать, <?= $user['last_name'] . ' ' . $user['first_name'] . ' ' . $user['middle_name']; ?>!</span>
+        <?php if ($_SESSION['user']['role'] == 'admin'): ?>
+        <a href="manage_break_slots.php">Слоты </a> 
+        <a href="register.php">Регистрация нового пользователя </a> 
+        <a href="edit.php">Изменение пользователя</a>
+        <a href="generate_report.php">Отчётность</a>
         <a href="logout.php">Выйти</a>
+        <?php else: ?>
+        <a href="logout.php">Выйти</a>
+        <?php endif; ?>
     </div>
 
     <div class="shift-container">

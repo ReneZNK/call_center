@@ -53,6 +53,9 @@ if (isset($_GET['message'])) {
                 alert(responseMessage);
             }
         });
+        function redirectToDashboard() {
+            window.location.href = "dashboard.php"; // Перенаправление на dashboard.php
+        }
     </script>
 </head>
 <body>
@@ -84,5 +87,8 @@ if (isset($_GET['message'])) {
         </tr>
         <?php endforeach; ?>
     </table>
+    <div class="back-to-dashboard">
+    <button type="button" onclick="redirectToDashboard()" class="button">Перейти на главую страницу</button>
+    </div>
 </body>
 </html>

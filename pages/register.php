@@ -49,6 +49,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Регистрация</title>
     <link rel="stylesheet" href="/style.css"> 
+    <script>
+        function redirectToDashboard() {
+            window.location.href = "dashboard.php"; // Перенаправление на dashboard.php
+        }
+    </script>
 </head>
 <body>
 
@@ -78,6 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </select>
             <button type="submit" class="form-submit">Зарегистрировать</button>
         </form>
+        <div class="back-to-dashboard">
+    <button type="button" onclick="redirectToDashboard()" class="button">Перейти на главую страницу</button>
+    </div>
     </div>
 </div>
 
